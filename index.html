@@ -330,7 +330,7 @@
                 // ==========================================
                 // STATE & VARIABLES (GITHUB PAGES CONFIG)
                 // ==========================================
-                const GAS_URL = "https://script.google.com/macros/s/AKfycbyheV5GYVibFKONhLvv1oNy2zjapg3FT7TnmnP21vd6ThtUaepF--5KzSfs86QF52gq/exec"; // ⚠️ GANTI NANTI SETELAH DEPLOY CODE.GS
+                const GAS_URL = "https://script.google.com/macros/s/AKfycbwwH-_Uupczw0x1qLAGMsP7Tq7S0VdcKY7ZZyNyua_8uPL31ucsO5zDTKtlcyNqpjfp/exec"; // ⚠️ GANTI NANTI SETELAH DEPLOY CODE.GS
                 window.google = { isExternal: true }; // Mematikan mode simulasi otomatis
                 
                 var activeProgram = ''; // Kosong saat di Landing Page
@@ -596,7 +596,16 @@
             // ==========================================
             // FORM & ACTIONS
             // ==========================================
-            window.openSelectModal = function(schoolId) {
+          window.openSelectModal = function(schoolId) {
+                // Validasi Waktu Pendaftaran di Tampilan
+                var now = new Date();
+                var startDate = new Date("2026-05-04T00:00:00+07:00");
+                var endDate = new Date("2026-05-08T23:59:59+07:00");
+                
+                if (now < startDate || now > endDate) {
+                    return Swal.fire('Pendaftaran Ditutup', 'Pendaftaran hanya dibuka pada 4 Mei 2026 (00.00) hingga 8 Mei 2026 (23.59) WIB.', 'warning');
+                }
+
                 var selectedSchool = dbSekolah.find(function(s) { return s.id === schoolId; });
                 if (!selectedSchool) return Swal.fire('Error', 'Data sekolah tidak ditemukan', 'error');
 

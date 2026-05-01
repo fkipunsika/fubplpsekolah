@@ -237,9 +237,9 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body bg-light">
-                    <div class="alert alert-info py-2 small shadow-sm border-0 rounded-3">
-                        <i class="fas fa-info-circle me-1"></i> <b>Aturan:</b> Maksimal 3 mahasiswa per Program Studi di setiap sekolah. Mahasiswa hanya dapat mendaftar pada <b>1 Program</b> (PLP atau FUB).
-                    </div>
+                   <div class="alert alert-info py-2 small shadow-sm border-0 rounded-3">
+                        <i class="fas fa-info-circle me-1"></i> <span id="textAturanProdi"><b>Aturan:</b> Maksimal 3 mahasiswa per Program Studi di sekolah ini.</span> Mahasiswa hanya dapat mendaftar pada <b>1 Program</b> (PLP atau FUB).
+                    </div>
                     
                     <form id="formPilih" onsubmit="window.handleFormSubmit(event)" class="card border-0 shadow-sm rounded-3 p-3">
                         <input type="hidden" id="selectedSchoolId">
@@ -330,7 +330,7 @@
                 // ==========================================
                 // STATE & VARIABLES (GITHUB PAGES CONFIG)
                 // ==========================================
-                const GAS_URL = "https://script.google.com/macros/s/AKfycbwwH-_Uupczw0x1qLAGMsP7Tq7S0VdcKY7ZZyNyua_8uPL31ucsO5zDTKtlcyNqpjfp/exec"; // ⚠️ GANTI NANTI SETELAH DEPLOY CODE.GS
+                const GAS_URL = "https://script.google.com/macros/s/AKfycbyY5xBV-bnpSJqAAp0E94OHUqZpt1qnP4BlUy2pUK_QHJKc2yKLtX1fIXKHZJY1Spr3/exec"; // ⚠️ GANTI NANTI SETELAH DEPLOY CODE.GS
                 window.google = { isExternal: true }; // Mematikan mode simulasi otomatis
                 
                 var activeProgram = ''; // Kosong saat di Landing Page
@@ -573,10 +573,10 @@
                                 '<h5 class="card-title fw-bold text-dark mb-2">' + escapeHTML(item.nama) + '</h5>' +
                                 '<p class="card-text text-muted small mb-2"><i class="fas fa-map-marker-alt me-1 text-danger"></i> ' + escapeHTML(item.alamat) + '</p>' +
                                 '<div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">' +
-                                    '<div class="small">' +
-                                        '<span class="d-block text-secondary">Info:</span>' +
-                                        '<span class="fw-bold text-dark">Max 3 Mhs/Prodi</span>' +
-                                    '</div>' +
+                                  '<div class="small">' +
+                                        '<span class="d-block text-secondary">Info:</span>' +
+                                        '<span class="fw-bold text-dark">Max ' + (item.maxProdi || 3) + ' Mhs/Prodi</span>' +
+                                    '</div>' +
                                     '<div class="text-end">' +
                                         '<small class="d-block text-secondary mb-1">Terisi (' + activeProgram + '): ' + terisiProg + ' / ' + item.kuota + '</small>' +
                                     '</div>' +
@@ -607,9 +607,14 @@
                 }
 
                 var selectedSchool = dbSekolah.find(function(s) { return s.id === schoolId; });
-                if (!selectedSchool) return Swal.fire('Error', 'Data sekolah tidak ditemukan', 'error');
+                if (!selectedSchool) return Swal.fire('Error', 'Data sekolah tidak ditemukan', 'error');
 
-                document.getElementById('selectedSchoolId').value = selectedSchool.id;
+                var txtAturan = document.getElementById('textAturanProdi');
+                if (txtAturan) {
+                    txtAturan.innerHTML = '<b>Aturan:</b> Maksimal ' + (selectedSchool.maxProdi || 3) + ' mahasiswa per Program Studi di sekolah ini.';
+                }
+
+                document.getElementById('selectedSchoolId').value = selectedSchool.id;
                 document.getElementById('displaySchoolName').value = selectedSchool.nama;
                 document.getElementById('formPilih').reset();
                 document.getElementById('inputAsuransi').value = ""; // Reset file input

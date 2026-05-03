@@ -330,7 +330,7 @@
                 // ==========================================
                 // STATE & VARIABLES (GITHUB PAGES CONFIG)
                 // ==========================================
-                const GAS_URL = "https://script.google.com/macros/s/AKfycbyY5xBV-bnpSJqAAp0E94OHUqZpt1qnP4BlUy2pUK_QHJKc2yKLtX1fIXKHZJY1Spr3/exec"; // ⚠️ GANTI NANTI SETELAH DEPLOY CODE.GS
+                const GAS_URL = "https://script.google.com/macros/s/AKfycbxW9Kx1Ib-ZVS7TSWSO1SGVvuMZI04bFOAEXa8PulQ-Hgjl1i4nJDGObpDVJ8dh508U/exec"; // ⚠️ GANTI NANTI SETELAH DEPLOY CODE.GS
                 window.google = { isExternal: true }; // Mematikan mode simulasi otomatis
                 
                 var activeProgram = ''; // Kosong saat di Landing Page
@@ -675,9 +675,10 @@
                 document.getElementById('btnSubmit').disabled = !isValid;
             };
 
-            window.handleFormSubmit = function(e) {
-                e.preventDefault();
-                var schoolId = document.getElementById('selectedSchoolId').value;
+          window.handleFormSubmit = function(e) {
+                e.preventDefault();
+                document.getElementById('btnSubmit').disabled = true; // 🔒 Kunci tombol agar tidak di-klik berkali-kali
+                var schoolId = document.getElementById('selectedSchoolId').value;
                 var payload = {
                     jenisProgram: activeProgram,
                     idSekolah: schoolId,
@@ -707,13 +708,13 @@
                     // TIER 3: Optimistic UI Syncing Flag on School
                     var sIdx = dbSekolah.findIndex(function(s) { return s.id === schoolId; });
                     if (sIdx > -1) {
-                        dbSekolah[sIdx]._isSyncing = true;
-                        renderSchoolList();
-                    }
+                       dbSekolah[sIdx]._isSyncing = true;
+                        renderSchoolList();
+                    }
 
-                    Swal.fire({ icon:'info', title: 'Menyimpan pendaftaran...', toast:true, position:'bottom-end', showConfirmButton:false, timer:3000 });
+                    showFullPageLoading('Antrean Server... Jangan tutup halaman ini!');
 
-                    if (typeof google === 'undefined') {
+                    if (typeof google === 'undefined') {
                         setTimeout(function() {
                             // Cek Validasi Lintas Program (Simulasi)
                             var existCrossProgram = mockPendaftar.find(function(p) { return p.nim === payload.nim; });
@@ -733,19 +734,21 @@
                             Swal.fire('Berhasil', 'Pendaftaran ' + activeProgram + ' sukses (Simulasi).', 'success');
                         }, 2000);
                     } else {
-                        gasRun('submitSelection', sessionToken, finalPayload)
-                            .then(function(res) {
-                                if (handleSessionExpired(res)) return;
-                                if (res.success) {
+                       gasRun('submitSelection', sessionToken, finalPayload)
+                            .then(function(res) {
+                                hideFullPageLoading(); // 🔓 Buka loading saat server selesai
+                                if (handleSessionExpired(res)) return;
+                                if (res.success) {
                                     Swal.fire('Berhasil!', res.message, 'success');
                                     window.loadPageData(activeProgram); // Silent refresh
                                 } else {
                                     if (sIdx > -1) { dbSekolah[sIdx]._isSyncing = false; renderSchoolList(); }
                                     Swal.fire('Pendaftaran Ditolak', res.message, 'error');
                                 }
-                            })
-                            .catch(function(err) {
-                                if (sIdx > -1) { dbSekolah[sIdx]._isSyncing = false; renderSchoolList(); }
+                          })
+                            .catch(function(err) {
+                                hideFullPageLoading(); // 🔓 Buka loading jika error
+                                if (sIdx > -1) { dbSekolah[sIdx]._isSyncing = false; renderSchoolList(); }
                                 Swal.fire('Error Server', err.message, 'error');
                             });
                     }
